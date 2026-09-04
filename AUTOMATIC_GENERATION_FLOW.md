@@ -1,7 +1,9 @@
 # Automatic Media Generation Flow
 
 ## Overview
-This document captures the automatic media generation flow described in the upstream reference commit: https://github.com/gaur-avvv/wormxgpt/commit/58c7a970c5ac263b5f1894bbebce45f0b2fdf794. In this repository, the closest related local sources are [`services/pollinations.ts`](services/pollinations.ts) and [`constants.ts`](constants.ts).
+This document captures the automatic media generation flow described in the upstream reference commit: https://github.com/gaur-avvv/wormxgpt/commit/58c7a970c5ac263b5f1894bbebce45f0b2fdf794.
+
+In this repository, local routing is currently enforced by `PollinationsService.generateChat()` in [`services/pollinations.ts`](services/pollinations.ts), which handles `/image`, `/video`, and `/audio` command parsing before falling back to text generation. The capability metadata referenced by the upstream flow would live in [`constants.ts`](constants.ts) under `MODEL_OPTIONS`.
 
 ## Flow Diagram
 
@@ -99,7 +101,7 @@ User Input (Prompt)
     [DONE]
 ```
 
-## Priority Order
+## Priority Order in the Referenced Flow
 
 1. **Manual Commands** (Highest Priority)
    - `/image [prompt]` → Always generates image
