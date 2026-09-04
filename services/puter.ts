@@ -41,12 +41,9 @@ export class PuterService {
   async verifyConnection(token?: string): Promise<boolean> {
     try {
       const puter = await this.getPuter(token);
-      if (puter?.ai?.chat) {
-        return true;
-      }
-      return true;
+      return !!puter?.ai?.chat;
     } catch {
-      return true;
+      return false;
     }
   }
 
@@ -139,7 +136,7 @@ export class PuterService {
     const { pollinationsService } = await import('./pollinations');
     return pollinationsService.generateChat(
       { ...settings, model: 'flux' }, 
-      [{ id: '1', role: 'user', content: `/image ${prompt}` }], 
+      [{ role: 'user', content: `/image ${prompt}`, timestamp: Date.now() }], 
       signal
     );
   }
