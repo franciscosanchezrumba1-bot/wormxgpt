@@ -150,8 +150,8 @@ Result: → Generates text response
 ## Implementation Details
 
 ### Code Location
-- **File**: `services/pollinations.ts`
-- **Function**: `streamChat()`
+- **Primary integration area**: the Pollinations service
+- **Current entry points**: `generateChat()` and `streamChat()`
 - **Related logic**: manual command handling, model capability checks, and text fallback routing
 
 ### Key Decision Points
