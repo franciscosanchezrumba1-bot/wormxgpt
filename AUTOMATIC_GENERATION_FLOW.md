@@ -1,7 +1,7 @@
 # Automatic Media Generation Flow
 
 ## Overview
-This document captures the automatic media generation flow described by the referenced upstream WormXGPT change.
+This document captures the automatic media generation flow described in the upstream reference commit: https://github.com/gaur-avvv/wormxgpt/commit/58c7a970c5ac263b5f1894bbebce45f0b2fdf794
 
 ## Flow Diagram
 
@@ -105,7 +105,7 @@ User Input (Prompt)
    - `/image [prompt]` → Always generates image
    - `/video [prompt]` → Always generates video
    - `/audio [prompt]` → Always generates audio
-   - These work with ANY model
+   - These take precedence over capability-based routing within the documented flow
 
 2. **Model Capability Detection**
    - Checks `MODEL_OPTIONS` for capability flags
