@@ -150,7 +150,7 @@ Result: → Generates text response
 ## Implementation Details
 
 ### Code Location
-- **Primary integration area**: `/home/runner/work/wormxgpt/wormxgpt/services/pollinations.ts`
+- **Primary integration area**: `services/pollinations.ts`
 - **Current entry points**: `generateChat()` and `streamChat()`
 - **Related logic**: manual command handling, model capability checks, and text fallback routing
 
@@ -160,7 +160,7 @@ Result: → Generates text response
 3. **Text fallback**: Default to text generation when no media path applies
 
 ### Model Metadata
-- **File**: `/home/runner/work/wormxgpt/wormxgpt/constants.ts`
+- **File**: `constants.ts`
 - **Array**: `MODEL_OPTIONS`
 - **Flags**: `imageGen`, `videoGen`, `audioGen`
 
