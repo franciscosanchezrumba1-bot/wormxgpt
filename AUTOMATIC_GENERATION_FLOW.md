@@ -1,7 +1,7 @@
 # Automatic Media Generation Flow
 
 ## Overview
-This document captures the automatic media generation flow described in the upstream reference commit: https://github.com/gaur-avvv/wormxgpt/commit/58c7a970c5ac263b5f1894bbebce45f0b2fdf794
+This document captures the automatic media generation flow described in the upstream reference commit: https://github.com/gaur-avvv/wormxgpt/commit/58c7a970c5ac263b5f1894bbebce45f0b2fdf794. In this repository, the closest related local sources are [`services/pollinations.ts`](services/pollinations.ts) and [`constants.ts`](constants.ts).
 
 ## Flow Diagram
 
