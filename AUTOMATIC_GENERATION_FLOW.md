@@ -147,23 +147,6 @@ User Input: "Explain quantum computing"
 Result: → Generates text response
 ```
 
-## Referenced Implementation Details
-
-### Code Location
-- **Primary integration area**: [`services/pollinations.ts`](services/pollinations.ts)
-- **Referenced entry points**: `generateChat()` and `streamChat()`
-- **Referenced logic**: manual command handling, model capability checks, and text fallback routing
-
-### Key Decision Points
-1. **Manual command handling**: Check `/image`, `/video`, and `/audio` first
-2. **Model capability checks**: Route by `imageGen`, `videoGen`, and `audioGen`
-3. **Text fallback**: Default to text generation when no media path applies
-
-### Model Metadata
-- **File**: [`constants.ts`](constants.ts)
-- **Array**: `MODEL_OPTIONS`
-- **Referenced flags**: `imageGen`, `videoGen`, `audioGen`
-
 ## Benefits
 
 ✅ **User Experience**
