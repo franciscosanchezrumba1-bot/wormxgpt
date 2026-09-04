@@ -13,8 +13,13 @@ class PollinationsService {
   private readonly TOKEN_LIMIT = 8000; // Safe default for most models
   private readonly RESPONSE_BUDGET = 2000;
 
+  private getUsableApiKey(key: string): string {
+    const normalized = key.trim();
+    return normalized && normalized.toLowerCase() !== 'free' ? normalized : '';
+  }
+
   setApiKey(key: string) {
-    this.apiKey = key;
+    this.apiKey = this.getUsableApiKey(key);
   }
 
   async verifyApiKey(key: string): Promise<boolean> {
@@ -22,8 +27,9 @@ class PollinationsService {
     // by making a lightweight request. If no key is required, just check the service is reachable.
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (key) {
-        headers['Authorization'] = `Bearer ${key}`;
+      const usableKey = this.getUsableApiKey(key);
+      if (usableKey) {
+        headers['Authorization'] = `Bearer ${usableKey}`;
       }
       const response = await fetch(this.baseUrl + '/v1/chat/completions', {
         method: 'POST',
