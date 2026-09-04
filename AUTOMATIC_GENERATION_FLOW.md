@@ -183,7 +183,7 @@ Result: → Generates text response
 
 ## Future Enhancements
 
-Potential improvements:
+Potential improvements that are not implemented yet:
 - Add settings toggle to disable automatic generation
 - Support multiple media types in one prompt
 - Add capability detection for Gemini and Groq models
