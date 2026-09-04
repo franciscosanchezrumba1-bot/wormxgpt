@@ -26,11 +26,18 @@ export class PollinationsService {
     this.apiKey = key;
   }
 
+  private normalizeBearerToken(token?: string | null): string {
+    if (!token) return '';
+    const normalized = token.trim();
+    return normalized && normalized.toLowerCase() !== 'free' ? normalized : '';
+  }
+
   async verifyApiKey(key: string): Promise<boolean> {
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (key && key !== 'free') {
-        headers['Authorization'] = `Bearer ${key}`;
+      const normalizedKey = this.normalizeBearerToken(key);
+      if (normalizedKey) {
+        headers['Authorization'] = `Bearer ${normalizedKey}`;
       }
       const response = await fetch(this.baseUrl + '/v1/chat/completions', {
         method: 'POST',
@@ -56,7 +63,9 @@ export class PollinationsService {
     messages: Message[],
     signal?: AbortSignal
   ): Promise<StreamYield> {
-    const bearerToken = settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || '';
+    const bearerToken = this.normalizeBearerToken(
+      settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || ''
+    );
     if (bearerToken) this.apiKey = bearerToken;
 
     const lastMessage = messages[messages.length - 1];
@@ -154,7 +163,9 @@ export class PollinationsService {
     else if (model.includes('flux')) model = 'flux';
     else model = settings.model || 'openai';
 
-    const bearerToken = settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || '';
+    const bearerToken = this.normalizeBearerToken(
+      settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || ''
+    );
 
     const { getDynamicTools } = await import('./tools');
     const dynamicTools = forceTools || (await getDynamicTools(settings));
@@ -322,7 +333,9 @@ export class PollinationsService {
       seed: seed.toString()
     });
 
-    const bearerToken = settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || '';
+    const bearerToken = this.normalizeBearerToken(
+      settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || ''
+    );
     if (bearerToken) {
       params.append('key', bearerToken);
     }
@@ -352,7 +365,9 @@ export class PollinationsService {
       seed: seed.toString()
     });
 
-    const bearerToken = settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || '';
+    const bearerToken = this.normalizeBearerToken(
+      settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || ''
+    );
     if (bearerToken) {
       params.append('key', bearerToken);
     }
@@ -371,7 +386,9 @@ export class PollinationsService {
     const voice = 'nova';
     const params = new URLSearchParams({ voice });
 
-    const bearerToken = settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || '';
+    const bearerToken = this.normalizeBearerToken(
+      settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || ''
+    );
     if (bearerToken) {
       params.append('key', bearerToken);
     }

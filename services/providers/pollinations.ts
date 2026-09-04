@@ -130,11 +130,13 @@ export const pollinationsProvider: IModelProvider = {
       const valid = await pollinationsService.verifyApiKey(token);
       const latency = Date.now() - start;
       const isBearer = !!settings.pollinationsApiKey && settings.pollinationsApiKey.trim().length > 0;
-      return { 
-        success: true, 
-        message: isBearer ? `Connected with Pollinations Bearer Token (${latency}ms)` : `Connected to Pollinations Free Gateway (${latency}ms)`, 
-        latencyMs: latency, 
-        modelsCount: 14 
+      return {
+        success: valid,
+        message: valid
+          ? (isBearer ? `Connected with Pollinations ****** (${latency}ms)` : `Connected to Pollinations Free Gateway (${latency}ms)`)
+          : (isBearer ? 'Pollinations API key verification failed' : 'Pollinations Free Gateway verification failed'),
+        latencyMs: latency,
+        modelsCount: 14
       };
     } catch (err: any) {
       return { success: false, message: err?.message || 'Connection test failed' };
