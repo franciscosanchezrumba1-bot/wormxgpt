@@ -1,7 +1,7 @@
 # Automatic Media Generation Flow
 
 ## Overview
-This document describes how the automatic media generation feature works in WormGPT.
+This document describes how the automatic media generation feature works in WormXGPT's Pollinations integration.
 
 ## Flow Diagram
 
@@ -152,12 +152,12 @@ Result: → Generates text response
 ### Code Location
 - **File**: `services/pollinations.ts`
 - **Function**: `streamChat()`
-- **Lines**: 21-69
+- **Related logic**: manual command handling, model capability checks, and text fallback routing
 
 ### Key Decision Points
-1. **Line 25-42**: Check for manual commands first
-2. **Line 44-65**: Check model capabilities
-3. **Line 67-68**: Default to text generation
+1. **Manual command handling**: Check `/image`, `/video`, and `/audio` first
+2. **Model capability checks**: Route by `imageGen`, `videoGen`, and `audioGen`
+3. **Text fallback**: Default to text generation when no media path applies
 
 ### Model Metadata
 - **File**: `constants.ts`
