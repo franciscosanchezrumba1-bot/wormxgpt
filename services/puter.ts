@@ -139,7 +139,7 @@ export class PuterService {
     const { pollinationsService } = await import('./pollinations');
     return pollinationsService.generateChat(
       { ...settings, model: 'flux' }, 
-      [{ id: '1', role: 'user', content: `/image ${prompt}` }], 
+      [{ id: '1', role: 'user', content: `/image ${prompt}`, timestamp: Date.now() }], 
       signal
     );
   }

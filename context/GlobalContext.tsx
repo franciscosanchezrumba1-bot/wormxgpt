@@ -14,6 +14,7 @@ import { sessionSync, pluginRegistry, mcpService } from '../services';
 import { sessionStore } from '../services/sessionStore';
 import { providerRouter, initializeProviderRouter } from '../services/providerRouter';
 import { chatService } from '../services/chatService';
+import { providerRegistry } from '../services/providers/registry';
 import { mcpRegistry, SelectableArsenalTool } from '../services/mcp/registry';
 import { multiAgentOrchestrator } from '../services/multiAgent';
 import { 
@@ -65,6 +66,9 @@ interface WormGPTContextType {
   enableAllZeroAuthTools: () => Promise<void>;
   registerMcpEndpoint: (urlOrServer: string, apiKey?: string) => Promise<void>;
   executeArsenalTool: (toolId: string, args: Record<string, any>) => Promise<any>;
+  // Whitebox: live generation state
+  activeGeneratingModel: string | null;
+  activeGeneratingProvider: string | null;
 }
 
 const WormGPTContext = createContext<WormGPTContextType | undefined>(undefined);
@@ -152,6 +156,9 @@ export const WormGPTProvider: React.FC<{ children: React.ReactNode; onSend?: (in
   const [isStreaming, setIsStreamingState] = useState(false);
   const isStreamingRef = useRef(false);
   const [activeToolCalling, setActiveToolCalling] = useState<string | null>(null);
+  const [activeGeneratingModel, setActiveGeneratingModel] = useState<string | null>(null);
+  const [activeGeneratingProvider, setActiveGeneratingProvider] = useState<string | null>(null);
+  const generationStartTime = useRef<number>(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [autocomplete, setAutocomplete] = useState<{ visible: boolean; type: 'model' | 'tool' | null; query: string; index: number; startIndex?: number }>({ visible: false, type: null, query: '', index: 0, startIndex: 0 });
@@ -454,17 +461,6 @@ export const WormGPTProvider: React.FC<{ children: React.ReactNode; onSend?: (in
       setIsStreaming(true);
       setActiveToolCalling(null);
 
-      const modelPlaceholder: Message = {
-        role: 'model',
-        content: '',
-        timestamp: Date.now()
-      };
-
-      setSessions(prev => prev.map(s => s.id === activeSessionId ? {
-        ...s,
-        messages: [...updatedMessages, modelPlaceholder]
-      } : s));
-
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
@@ -481,8 +477,24 @@ export const WormGPTProvider: React.FC<{ children: React.ReactNode; onSend?: (in
           };
         }
 
-        let responseChunk: { text: string; images?: string[]; video?: string; audio?: string; sources?: any[]; toolInvocations?: ToolInvocation[] };
+        // Set whitebox live generation state AFTER effectiveExecutionSettings is resolved
+        setActiveGeneratingModel(effectiveExecutionSettings.model);
+        setActiveGeneratingProvider(String(effectiveExecutionSettings.aiProvider));
+        generationStartTime.current = Date.now();
 
+        const modelPlaceholder: Message = {
+          role: 'model',
+          content: '',
+          timestamp: Date.now()
+        };
+
+        setSessions(prev => prev.map(s => s.id === activeSessionId ? {
+          ...s,
+          messages: [...updatedMessages, modelPlaceholder]
+        } : s));
+
+
+        let responseChunk: any = null;
         if (settings.multiAgentEnabled && multiAgentOrchestrator.listAgents().length > 0) {
           const multiAgentTasks = multiAgentOrchestrator.analyzeForMultiAgent(filteredInput);
           if (multiAgentTasks) {
@@ -516,34 +528,81 @@ export const WormGPTProvider: React.FC<{ children: React.ReactNode; onSend?: (in
 
         if (controller.signal.aborted) return;
 
+        const latencyMs = Date.now() - generationStartTime.current;
         const finalText = responseChunk.text || 'No response generated.';
         const finalImages = responseChunk.images || [];
         const finalSources = responseChunk.sources || [];
         const finalToolInvocations = responseChunk.toolInvocations || [];
 
+        // Classify errors from response text
+        const isError = finalText.startsWith('CRITICAL_FAILURE:') || finalText.startsWith('[ERROR]');
+        const errorType = isError ? (
+          finalText.includes('401') || finalText.toLowerCase().includes('api key') ? 'api_key' :
+          finalText.includes('429') ? 'rate_limit' :
+          finalText.includes('context') ? 'context_overflow' :
+          finalText.includes('model') && finalText.includes('not found') ? 'model_unavailable' :
+          finalText.includes('fetch') || finalText.includes('network') ? 'network' : 'unknown'
+        ) : undefined;
+
+        // Build generatedBy whitebox metadata
+        const usedModel = responseChunk.model || effectiveExecutionSettings.model;
+        const usedProvider = responseChunk.provider || String(effectiveExecutionSettings.aiProvider);
+        const isFreeModel = providerRegistry?.getAllModels?.()?.find(m => m.id === usedModel)?.isFree || false;
+
         setSessions(prev => prev.map(s => s.id === activeSessionId ? {
           ...s,
-          messages: s.messages.map((m, idx) => 
-            idx === s.messages.length - 1 ? { 
-              ...m, 
-              content: finalText, 
-              images: finalImages, 
+          messages: s.messages.map((m, idx) =>
+            idx === s.messages.length - 1 ? {
+              ...m,
+              content: finalText,
+              images: finalImages,
               sources: finalSources,
-              toolInvocations: finalToolInvocations
+              toolInvocations: finalToolInvocations,
+              isError,
+              errorType: errorType as any,
+              errorRaw: isError ? finalText : undefined,
+              routingEvents: responseChunk.routingEvents,
+              generatedBy: {
+                model: usedModel,
+                provider: usedProvider as any,
+                latencyMs,
+                inputTokens: responseChunk.inputTokens,
+                outputTokens: responseChunk.outputTokens,
+                attemptedProviders: responseChunk.attemptedProviders,
+                fallbackReason: responseChunk.fallbackReason,
+                isFree: isFreeModel,
+                streamingEnabled: true
+              }
             } : m
           )
         } : s));
       } catch (streamError: any) {
         if (streamError.name === 'AbortError' || controller.signal.aborted) return;
+        const errMsg = streamError.message || 'Unknown Error';
+        const errType = (
+          errMsg.includes('401') || errMsg.toLowerCase().includes('api key') ? 'api_key' :
+          errMsg.includes('429') ? 'rate_limit' :
+          errMsg.includes('context') ? 'context_overflow' :
+          errMsg.includes('model') ? 'model_unavailable' :
+          errMsg.includes('fetch') || errMsg.includes('network') ? 'network' : 'unknown'
+        );
         setSessions(prev => prev.map(s => s.id === activeSessionId ? {
           ...s,
-          messages: s.messages.map((m, idx) => 
-            idx === s.messages.length - 1 ? { ...m, content: `CRITICAL_FAILURE: ${streamError.message || 'Unknown Error'}` } : m
+          messages: s.messages.map((m, idx) =>
+            idx === s.messages.length - 1 ? {
+              ...m,
+              content: errMsg,
+              isError: true,
+              errorType: errType as any,
+              errorRaw: errMsg
+            } : m
           )
         } : s));
       } finally {
         setIsStreaming(false);
         setActiveToolCalling(null);
+        setActiveGeneratingModel(null);
+        setActiveGeneratingProvider(null);
         sendLockRef.current = false;
         abortControllerRef.current = null;
       }
@@ -588,6 +647,8 @@ export const WormGPTProvider: React.FC<{ children: React.ReactNode; onSend?: (in
     settings, setSettings,
     isStreaming, setIsStreaming,
     activeToolCalling,
+    activeGeneratingModel,
+    activeGeneratingProvider,
     input, setInput,
     attachments, setAttachments,
     isSidebarOpen, setIsSidebarOpen,

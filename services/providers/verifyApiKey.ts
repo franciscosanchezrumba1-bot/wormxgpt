@@ -189,13 +189,18 @@ export const PROVIDER_VERIFICATION_MAP: Record<string, ProviderEndpointMeta> = {
     providerId: 'perplexity',
     name: 'Perplexity Sonar',
     category: 'cloud',
-    endpoint: 'https://api.perplexity.ai/models',
-    method: 'GET',
+    endpoint: 'https://api.perplexity.ai/chat/completions',
+    method: 'POST',
     headers: (key) => ({
       Authorization: `Bearer ${key.trim()}`,
       'Content-Type': 'application/json',
     }),
-    defaultModel: 'sonar-pro',
+    body: () => JSON.stringify({
+      model: 'sonar',
+      messages: [{ role: 'user', content: 'ping' }],
+      max_tokens: 1
+    }),
+    defaultModel: 'sonar',
     requiresApiKey: true,
   },
   xai: {
@@ -750,6 +755,7 @@ export async function verifyProviderApiKey(
     const res = await fetch(targetUrl, {
       method: meta?.method || 'GET',
       headers,
+      body: (meta?.method === 'POST' && meta?.body) ? meta.body(trimmedKey) : undefined,
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
