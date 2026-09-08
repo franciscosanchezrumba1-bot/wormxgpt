@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { 
-  Send, Square, Paperclip, X, Eye, ShieldAlert, Mic, Zap
+  Send, Square, Paperclip, X, Eye, ShieldAlert, Mic, Zap, Loader2
 } from 'lucide-react';
 import { useWormGPT } from '../context/GlobalContext';
 import { AutocompleteDropdown } from './AutocompleteDropdown';
@@ -19,6 +19,7 @@ export const InputBar: React.FC<{
     handleSend, 
     handleAbort, 
     isStreaming, 
+    activeToolCalling,
     attachments, 
     setAttachments, 
     removeAttachment,
@@ -67,14 +68,18 @@ export const InputBar: React.FC<{
     setIsCompressingPxpipe(true);
     try {
       const result = await pxpipeEngine.renderTextToImage(input, {
-        fontSize: 13,
-        lineHeight: 18,
+        fontSize: 11,
+        lineHeight: 15,
         theme: 'terminal-green',
-        maxWidth: 1000
+        maxWidth: 1024,
+        title: 'PROMPT_INPUT_COMPRESSION'
       });
-      setAttachments(prev => [...prev, result.dataUrl]);
+      const newImages = result.images && result.images.length > 0 ? result.images : [result.dataUrl];
+      setAttachments(prev => [...prev, ...newImages]);
       setPxpipeStats(result.stats);
-      setInput('[PXPIPE COMPRESSED CONTEXT ATTACHED - SAVED ' + result.stats.tokenSavingsPct + '% TOKENS] Analyze the attached dense context attachment.');
+      const frameCount = newImages.length;
+      const escapeNotice = result.preservedPlainText ? `\n${result.preservedPlainText}\n` : '';
+      setInput(`[PXPIPE ARBITRAGE ATTACHED // ${frameCount} FRAME${frameCount > 1 ? 'S' : ''} - SAVED ${result.stats.tokenSavingsPct}% TOKENS]${escapeNotice}Analyze the attached dense context and answer thoroughly.`);
     } catch (err) {
       console.error('pxpipe compression failed:', err);
     } finally {
@@ -477,14 +482,15 @@ export const InputBar: React.FC<{
             </button>
 
             {/* Send / Stop Button */}
-            {isStreaming.current ? (
+            {isStreaming ? (
               <button
                 type="button"
                 onClick={handleAbort}
-                className="p-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-950/40 transition-all"
+                className="px-2.5 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-950/40 ring-1 ring-rose-400/50 flex items-center gap-1.5 transition-all animate-pulse"
                 title="Stop generation"
               >
                 <Square className="w-4 h-4 fill-current" />
+                <span className="text-xs font-semibold uppercase tracking-wider">Stop</span>
               </button>
             ) : (
               <button

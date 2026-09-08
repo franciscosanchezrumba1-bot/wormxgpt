@@ -7,6 +7,7 @@ import { mistralProvider } from './mistral';
 import { geminiProvider } from './gemini';
 import { deepseekProvider } from './deepseek';
 import { pollinationsProvider } from './pollinations';
+import { puterProvider } from './puter';
 import { openrouterService } from '../openrouter';
 import { ollamaService } from '../ollama';
 import { perplexityService } from '../perplexity';
@@ -154,10 +155,10 @@ export const EXPANDED_PROVIDERS: Record<string, ProviderConfig> = {
   },
   xai: {
     id: 'xai',
-    name: 'xAI (Grok)',
+    name: 'xAI (Grok 3)',
     baseUrl: 'https://api.x.ai/v1',
     authHeader: (key) => ({ Authorization: `Bearer ${key}` }),
-    models: ['grok-2-latest', 'grok-2-vision-1212', 'grok-beta'],
+    models: ['grok-3', 'grok-3-mini', 'grok-3-fast', 'grok-2-latest', 'grok-2-vision-1212', 'grok-aurora', 'grok-beta'],
     docsUrl: 'https://console.x.ai',
     category: 'cloud',
   },
@@ -200,9 +201,9 @@ export const EXPANDED_PROVIDERS: Record<string, ProviderConfig> = {
   huggingface: {
     id: 'huggingface',
     name: 'HuggingFace Inference',
-    baseUrl: 'https://api-inference.huggingface.co/v1',
+    baseUrl: 'https://router.huggingface.co/hf-inference/v1',
     authHeader: (key) => ({ Authorization: `Bearer ${key}` }),
-    models: ['meta-llama/Llama-3.3-70B-Instruct', 'Qwen/Qwen2.5-Coder-32B-Instruct', 'zai-org/GLM-5.2', 'deepseek-ai/DeepSeek-R1'],
+    models: ['meta-llama/Llama-3.3-70B-Instruct', 'deepseek-ai/DeepSeek-R1', 'deepseek-ai/DeepSeek-V3', 'Qwen/Qwen2.5-Coder-32B-Instruct', 'zai-org/GLM-5.2'],
     docsUrl: 'https://huggingface.co/settings/tokens',
     category: 'router',
   },
@@ -292,7 +293,7 @@ export const EXPANDED_PROVIDERS: Record<string, ProviderConfig> = {
     name: 'Puter AI (400+ Free Models)',
     baseUrl: 'https://api.puter.com/v1',
     authHeader: (key) => (key ? { Authorization: `Bearer ${key}` } : {}),
-    models: ['gpt-4o-mini', 'claude-3-5-sonnet', 'deepseek-r1', 'gemini-2.0-flash'],
+    models: ['gpt-4o', 'gpt-4o-mini', 'claude-3-7-sonnet', 'claude-3-5-sonnet', 'deepseek-r1', 'deepseek-v3', 'gemini-2.5-flash', 'gemini-2.0-flash', 'mistral-large-latest', 'meta-llama/llama-3.3-70b-instruct', 'o3-mini', 'qwen/qwen-2.5-coder-32b-instruct'],
     docsUrl: 'https://puter.com',
     category: 'cloud',
   },
@@ -301,7 +302,7 @@ export const EXPANDED_PROVIDERS: Record<string, ProviderConfig> = {
     name: 'Pollinations AI (No API Key Required)',
     baseUrl: 'https://text.pollinations.ai',
     authHeader: () => ({}),
-    models: ['openai', 'deepseek', 'claude', 'mistral', 'flux', 'qwen-coder'],
+    models: ['openai', 'openai-large', 'claude', 'claude-large', 'deepseek', 'deepseek-reasoner', 'gemini', 'gemini-large', 'llama', 'qwen-coder', 'mistral', 'flux', 'flux-realism', 'midjourney', 'karma'],
     docsUrl: 'https://pollinations.ai',
     category: 'cloud',
   },
@@ -509,6 +510,52 @@ export const EXPANDED_PROVIDERS: Record<string, ProviderConfig> = {
   zenmux: { id: 'zenmux', name: 'ZenMux Aggregator', baseUrl: 'https://api.zenmux.ai/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['zen-route-smart', 'zen-route-economy', 'zen-route-speed'], category: 'router' },
   zhipuai: { id: 'zhipuai', name: 'Zhipu AI (智谱清言)', baseUrl: 'https://open.bigmodel.cn/api/paas/v4', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['glm-5.2', 'glm-4-plus', 'glm-4-flash', 'glm-4-air', 'codegeex-4'], category: 'cloud' },
   'zhipuai-coding-plan': { id: 'zhipuai-coding-plan', name: 'Zhipu AI Coding Plan', baseUrl: 'https://open.bigmodel.cn/api/paas/v4', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['glm-5.2', 'glm-4-plus', 'codegeex-4', 'glm-4-flash'], category: 'cloud' },
+
+  // ── New 2025/2026 Providers ──────────────────────────────────────────────────
+  // Free / No-Key Providers
+  github_models: { id: 'github_models', name: 'GitHub Models (FREE, No Key)', baseUrl: 'https://models.inference.ai.azure.com', authHeader: (k) => (k ? { Authorization: `Bearer ${k}` } : {}), models: ['gpt-4o', 'gpt-4o-mini', 'o1-mini', 'o3-mini', 'Phi-4', 'Phi-3.5-mini-instruct', 'DeepSeek-R1', 'DeepSeek-V3-0324', 'Meta-Llama-3.3-70B-Instruct', 'Mistral-Large-2411', 'Cohere-command-r-plus-08-2024', 'AI21-Jamba-1.5-Large'], docsUrl: 'https://github.com/marketplace/models', category: 'cloud' },
+  neets: { id: 'neets', name: 'Neets.ai (Free Tier Available)', baseUrl: 'https://api.neets.ai/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['nous-hermes-2-mixtral-8x7b', 'mistral-7b-instruct', 'openchat-3.5-0106'], docsUrl: 'https://neets.ai', category: 'router' },
+
+  // GPU Cloud Inference
+  lepton: { id: 'lepton', name: 'Lepton AI Serverless', baseUrl: 'https://llama3-3-70b.lepton.run/api/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['llama3-3-70b', 'deepseek-r1', 'mistral-7b'], docsUrl: 'https://lepton.ai', category: 'cloud' },
+  runpod: { id: 'runpod', name: 'RunPod Serverless', baseUrl: 'https://api.runpod.ai/v2', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['llama3.3-70b', 'deepseek-r1', 'qwen2.5-72b'], docsUrl: 'https://runpod.io', category: 'cloud' },
+  vast: { id: 'vast', name: 'Vast.ai GPU Marketplace', baseUrl: 'https://api.vast.ai/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['llama-3-70b', 'deepseek-r1', 'mixtral-8x7b'], docsUrl: 'https://vast.ai', category: 'cloud' },
+  salad: { id: 'salad', name: 'Salad Cloud Inference', baseUrl: 'https://api.salad.com/api/public/v1', authHeader: (k) => ({ 'Salad-Api-Key': k }), models: ['llama-3.3-70b', 'deepseek-r1', 'qwen2.5-72b'], docsUrl: 'https://salad.com', category: 'cloud' },
+
+  // Enterprise / Specialized
+  ai21: { id: 'ai21', name: 'AI21 Labs (Jamba)', baseUrl: 'https://api.ai21.com/studio/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['jamba-1.6-large', 'jamba-1.6-mini', 'jamba-1.5-large', 'jamba-1.5-mini', 'j2-ultra', 'j2-mid'], docsUrl: 'https://studio.ai21.com', category: 'cloud' },
+  writer: { id: 'writer', name: 'Writer (Palmyra)', baseUrl: 'https://api.writer.com/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['palmyra-x5', 'palmyra-x4', 'palmyra-x-003-instruct', 'palmyra-med', 'palmyra-fin'], docsUrl: 'https://writer.com/product/api', category: 'cloud' },
+  inflection: { id: 'inflection', name: 'Inflection AI (Pi)', baseUrl: 'https://api.inflection.ai/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['inflection-3-productivity', 'inflection-3-pi', 'inflection-2-5'], docsUrl: 'https://inflection.ai/api', category: 'cloud' },
+  anyscale: { id: 'anyscale', name: 'Anyscale Endpoints', baseUrl: 'https://api.endpoints.anyscale.com/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['meta-llama/Llama-3-70b-chat-hf', 'mistralai/Mistral-7B-Instruct-v0.1', 'codellama/CodeLlama-70b-Instruct-hf'], docsUrl: 'https://anyscale.com', category: 'cloud' },
+  octoai: { id: 'octoai', name: 'OctoAI Compute Platform', baseUrl: 'https://text.octoai.run/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['meta-llama-3.3-70b-instruct', 'mistral-7b-instruct', 'nous-hermes-2-mixtral-8x7b-dpo'], docsUrl: 'https://octoai.cloud', category: 'cloud' },
+
+  // European Sovereign AI
+  nscale: { id: 'nscale', name: 'Nscale (UK Sovereign AI)', baseUrl: 'https://inference.api.nscale.com/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['meta-llama/Llama-3.3-70B-Instruct', 'deepseek-ai/DeepSeek-R1', 'mistralai/Mistral-Small-24B-Instruct-2501'], docsUrl: 'https://nscale.com', category: 'cloud' },
+
+  // Image/Media Generation
+  fal: { id: 'fal', name: 'fal.ai (Fast AI Media)', baseUrl: 'https://fal.run/fal-ai', authHeader: (k) => ({ Authorization: `Key ${k}` }), models: ['flux/dev', 'flux/schnell', 'flux-pro', 'stable-diffusion-3', 'lora'], docsUrl: 'https://fal.ai', category: 'cloud' },
+
+  // Decentralized / Web3
+  gradient: { id: 'gradient', name: 'Gradient AI', baseUrl: 'https://api.gradient.ai/api/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['Llama-3-70b-instruct', 'Nous-Hermes-2-Mixtral-8x7B'], docsUrl: 'https://gradient.ai', category: 'router' },
+
+  // New Free Gateways
+  openrouter_free: { id: 'openrouter_free', name: 'OpenRouter Free Models', baseUrl: 'https://openrouter.ai/api/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}`, 'HTTP-Referer': 'https://wormxgpt.terminal' }), models: ['mistralai/mistral-7b-instruct:free', 'openchat/openchat-7b:free', 'gryphe/mythomist-7b:free', 'meta-llama/llama-3.2-3b-instruct:free', 'google/gemma-3-27b-it:free', 'deepseek/deepseek-r1:free', 'deepseek/deepseek-v3-base:free', 'qwen/qwen3-8b:free', 'microsoft/phi-4-reasoning:free'], docsUrl: 'https://openrouter.ai/models?order=newest&supported_parameters=free', category: 'router' },
+
+  // Platform Gateways with Free Tiers
+  together_free: { id: 'together_free', name: 'Together AI Free Models', baseUrl: 'https://api.together.xyz/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo', 'meta-llama/Llama-3.2-3B-Instruct-Turbo', 'meta-llama/Llama-Vision-Free', 'Qwen/Qwen2-VL-72B-Instruct', 'google/gemma-2-27b-it'], docsUrl: 'https://api.together.xyz/models?category=chat&free=true', category: 'router' },
+
+  // Inference Aggregators
+  modal: { id: 'modal', name: 'Modal Labs Inference', baseUrl: 'https://api.modal.run/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['meta-llama/Llama-3.3-70B-Instruct', 'deepseek-ai/DeepSeek-R1', 'mistralai/Mistral-7B-Instruct-v0.3'], docsUrl: 'https://modal.com', category: 'cloud' },
+  beam: { id: 'beam', name: 'Beam Cloud', baseUrl: 'https://api.beam.cloud/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['llama-3.3-70b', 'deepseek-r1', 'mistral-7b'], docsUrl: 'https://beam.cloud', category: 'cloud' },
+
+  // Asian Market
+  'baidu-wenxin': { id: 'baidu-wenxin', name: 'Baidu ERNIE (文心一言)', baseUrl: 'https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['ERNIE-4.5-8K', 'ERNIE-4.0-8K', 'ERNIE-3.5-128K', 'ERNIE-Speed-128K'], docsUrl: 'https://cloud.baidu.com/product/wenxinworkshop', category: 'cloud' },
+  'volcengine-ark': { id: 'volcengine-ark', name: 'Volcengine Ark (ByteDance)', baseUrl: 'https://ark.cn-beijing.volces.com/api/v3', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['doubao-pro-32k', 'doubao-lite-32k', 'doubao-character-pro-32k'], docsUrl: 'https://www.volcengine.com/product/ark', category: 'cloud' },
+  'iflytek-spark': { id: 'iflytek-spark', name: 'iFlytek Spark (讯飞星火)', baseUrl: 'https://spark-api-open.xf-yun.com/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['lite', 'generalv3', 'pro-128k', 'max-32k', '4.0Ultra'], docsUrl: 'https://xinghuo.xfyun.cn', category: 'cloud' },
+
+  // Specialized Code / Agentic
+  codestral_fim: { id: 'codestral_fim', name: 'Codestral FIM (Fill-in-Middle)', baseUrl: 'https://codestral.mistral.ai/v1', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['codestral-latest', 'codestral-2501'], docsUrl: 'https://mistral.ai/news/codestral', category: 'cloud' },
+  github_copilot: { id: 'github_copilot', name: 'GitHub Copilot API', baseUrl: 'https://api.githubcopilot.com', authHeader: (k) => ({ Authorization: `Bearer ${k}` }), models: ['gpt-4o', 'gpt-4o-mini', 'o1', 'o3-mini', 'claude-sonnet-4-5', 'gemini-2.0-flash'], docsUrl: 'https://docs.github.com/en/copilot/using-github-copilot/ai-models-for-github-copilot', category: 'cloud' },
 };
 
 /**
@@ -657,15 +704,63 @@ export const perplexityProvider: IModelProvider = {
 
 export const xaiProvider: IModelProvider = {
   id: 'xai',
-  name: 'xAI (Grok)',
-  description: 'xAI Grok frontier models with search and truth-seeking reasoning',
+  name: 'xAI Grok 3',
+  description: 'Grok 3 — frontier reasoning + search, Grok 3 Mini, Grok 3 Fast, Aurora vision',
   requiresApiKey: true,
   apiKeyField: 'xaiApiKey',
   docsUrl: 'https://console.x.ai',
   models: [
-    { id: 'grok-2-latest', label: 'Grok 2 Latest', contextWindow: 128000, tags: ['reasoning', 'code'] },
-    { id: 'grok-2-vision-1212', label: 'Grok 2 Vision', contextWindow: 32000, tags: ['vision'] },
-    { id: 'grok-beta', label: 'Grok Beta', contextWindow: 128000, tags: ['fast'] }
+    // ── Grok 3 Series (2025 Latest) ───────────────────────────────────────────
+    {
+      id: 'grok-3',
+      label: 'Grok 3 ✦ (2025 Frontier Reasoning)',
+      contextWindow: 131072,
+      tags: ['reasoning', 'code', 'long-context'],
+      description: 'xAI flagship — DeepSearch, Think mode, frontier mathematics and coding'
+    },
+    {
+      id: 'grok-3-mini',
+      label: 'Grok 3 Mini ✦ (2025 Fast Reasoning)',
+      contextWindow: 131072,
+      tags: ['reasoning', 'fast', 'code'],
+      description: 'Fast Grok 3 variant — efficient reasoning for STEM tasks'
+    },
+    {
+      id: 'grok-3-fast',
+      label: 'Grok 3 Fast ✦ (Low Latency)',
+      contextWindow: 131072,
+      tags: ['fast', 'code'],
+      description: 'Speed-optimized Grok 3 — real-time applications'
+    },
+    {
+      id: 'grok-aurora',
+      label: 'Grok Aurora (Vision)',
+      contextWindow: 32768,
+      tags: ['vision'],
+      description: 'Aurora image understanding and generation model'
+    },
+    // ── Grok 2 Series ─────────────────────────────────────────────────────────
+    {
+      id: 'grok-2-latest',
+      label: 'Grok 2 Latest',
+      contextWindow: 131072,
+      tags: ['reasoning', 'code'],
+      description: 'Previous flagship — real-time X data access'
+    },
+    {
+      id: 'grok-2-vision-1212',
+      label: 'Grok 2 Vision (Dec 2024)',
+      contextWindow: 32768,
+      tags: ['vision'],
+      description: 'Grok 2 multimodal vision model'
+    },
+    {
+      id: 'grok-beta',
+      label: 'Grok Beta (Legacy)',
+      contextWindow: 131072,
+      tags: ['fast'],
+      description: 'Original Grok model'
+    }
   ],
   async testConnection(settings: AppSettings) {
     const key = settings.xaiApiKey || '';
@@ -929,6 +1024,7 @@ class ProviderRegistry {
     this.register(geminiProvider);
     this.register(deepseekProvider);
     this.register(pollinationsProvider);
+    this.register(puterProvider);
 
     // Register expanded matrix providers
     this.register(openrouterProvider);
@@ -1020,5 +1116,6 @@ export {
   mistralProvider, 
   geminiProvider, 
   deepseekProvider, 
-  pollinationsProvider 
+  pollinationsProvider,
+  puterProvider 
 };

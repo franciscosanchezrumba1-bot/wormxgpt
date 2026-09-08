@@ -85,7 +85,7 @@ const WormGPTApp: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#090d16] text-slate-100 font-sans overflow-hidden select-none">
+    <div className="flex h-screen bg-[#090d16] text-slate-100 font-sans overflow-hidden">
       {/* Collapsible Sidebar */}
       <Sidebar 
         onNewSession={handleNewSession}

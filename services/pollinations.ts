@@ -26,11 +26,18 @@ export class PollinationsService {
     this.apiKey = key;
   }
 
+  private normalizeBearerToken(token?: string | null): string {
+    if (!token) return '';
+    const normalized = token.trim();
+    return normalized && normalized.toLowerCase() !== 'free' ? normalized : '';
+  }
+
   async verifyApiKey(key: string): Promise<boolean> {
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (key) {
-        headers['Authorization'] = `Bearer ${key}`;
+      const normalizedKey = this.normalizeBearerToken(key);
+      if (normalizedKey) {
+        headers['Authorization'] = `Bearer ${normalizedKey}`;
       }
       const response = await fetch(this.baseUrl + '/v1/chat/completions', {
         method: 'POST',
@@ -42,9 +49,9 @@ export class PollinationsService {
           stream: false
         })
       });
-      return response.ok || response.status === 200 || response.status === 400;
+      return response.ok || response.status === 200 || response.status === 400 || response.status === 401;
     } catch {
-      return true; // Pollinations is public free tier
+      return true; // Pollinations is public free tier fallback
     }
   }
 
@@ -56,6 +63,11 @@ export class PollinationsService {
     messages: Message[],
     signal?: AbortSignal
   ): Promise<StreamYield> {
+    const bearerToken = this.normalizeBearerToken(
+      settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || ''
+    );
+    if (bearerToken) this.apiKey = bearerToken;
+
     const lastMessage = messages[messages.length - 1];
     const prompt = lastMessage?.content || '';
 
@@ -138,11 +150,22 @@ export class PollinationsService {
 
     // Map model cleanly to a Pollinations compatible model name
     let model = (settings.model || 'openai').toLowerCase();
-    if (model.includes('deepseek')) model = 'deepseek';
-    else if (model.includes('claude')) model = 'claude';
+    if (model.includes('deepseek-r1') || model === 'deepseek-reasoner') model = 'deepseek-reasoner';
+    else if (model.includes('deepseek')) model = 'deepseek';
+    else if (model.includes('claude-3-7') || model.includes('claude-3-5') || model.includes('claude')) model = 'claude';
     else if (model.includes('mistral')) model = 'mistral';
     else if (model.includes('qwen')) model = 'qwen-coder';
-    else model = 'openai';
+    else if (model.includes('llama')) model = 'llama';
+    else if (model.includes('gemini')) model = 'gemini';
+    else if (model.includes('search')) model = 'searchgpt';
+    else if (model === 'openai-large') model = 'openai-large';
+    else if (model === 'openai-fast') model = 'openai-fast';
+    else if (model.includes('flux')) model = 'flux';
+    else model = settings.model || 'openai';
+
+    const bearerToken = this.normalizeBearerToken(
+      settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || ''
+    );
 
     const { getDynamicTools } = await import('./tools');
     const dynamicTools = forceTools || (await getDynamicTools(settings));
@@ -158,12 +181,17 @@ export class PollinationsService {
 
       // 1. Try public text endpoint first via POST JSON (most stable and fast)
       try {
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+        if (bearerToken) {
+          headers['Authorization'] = `Bearer ${bearerToken}`;
+        }
+
         const postResp = await fetch(this.fallbackTextUrl, {
           signal,
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers,
           body: JSON.stringify({
             messages: openAIMessages,
             model,
@@ -190,8 +218,8 @@ export class PollinationsService {
       // 2. Try gen.pollinations.ai /v1/chat/completions if API key or standard endpoint
       try {
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (this.apiKey) {
-          headers['Authorization'] = `Bearer ${this.apiKey}`;
+        if (bearerToken) {
+          headers['Authorization'] = `Bearer ${bearerToken}`;
         }
 
         const compResp = await fetch(this.baseUrl + '/v1/chat/completions', {
@@ -305,8 +333,11 @@ export class PollinationsService {
       seed: seed.toString()
     });
 
-    if (this.apiKey) {
-      params.append('key', this.apiKey);
+    const bearerToken = this.normalizeBearerToken(
+      settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || ''
+    );
+    if (bearerToken) {
+      params.append('key', bearerToken);
     }
 
     const imageUrl = `${this.baseUrl}/prompt/${encodeURIComponent(prompt)}?${params.toString()}`;
@@ -334,8 +365,11 @@ export class PollinationsService {
       seed: seed.toString()
     });
 
-    if (this.apiKey) {
-      params.append('key', this.apiKey);
+    const bearerToken = this.normalizeBearerToken(
+      settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || ''
+    );
+    if (bearerToken) {
+      params.append('key', bearerToken);
     }
 
     const videoUrl = `https://gen.pollinations.ai/video/${encodeURIComponent(prompt)}?${params.toString()}`;
@@ -352,8 +386,11 @@ export class PollinationsService {
     const voice = 'nova';
     const params = new URLSearchParams({ voice });
 
-    if (this.apiKey) {
-      params.append('key', this.apiKey);
+    const bearerToken = this.normalizeBearerToken(
+      settings.pollinationsApiKey || this.apiKey || (typeof window !== 'undefined' ? localStorage.getItem('pollinationsApiKey') : '') || ''
+    );
+    if (bearerToken) {
+      params.append('key', bearerToken);
     }
 
     const audioUrl = `https://gen.pollinations.ai/audio/${encodeURIComponent(prompt)}?${params.toString()}`;

@@ -125,12 +125,13 @@ class OpenAIService {
         if (assistantMsg.content) accumulatedText += assistantMsg.content + '\n';
 
         for (const tc of assistantMsg.tool_calls) {
+          const toolCallId = tc.id || `call_${Math.random().toString(36).slice(2, 10)}`;
           const toolName = tc.function?.name || '';
           const toolArgsStr = tc.function?.arguments || '{}';
           accumulatedText += `${getToolExecutingString(toolName)}\n`;
 
           const toolResultData = await executeToolCall({
-            id: tc.id || 'call_' + Math.random().toString(36).substring(7),
+            id: toolCallId,
             type: 'function',
             function: { name: toolName, arguments: validateAndFixToolArgs(toolArgsStr, toolName) }
           });
@@ -146,7 +147,7 @@ class OpenAIService {
 
           conversation.push({
             role: 'tool',
-            tool_call_id: tc.id,
+            tool_call_id: toolCallId,
             name: toolName,
             content: typeof parsedResult === 'string' ? parsedResult : JSON.stringify(parsedResult)
           });
