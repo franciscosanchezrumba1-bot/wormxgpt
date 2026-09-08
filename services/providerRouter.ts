@@ -147,23 +147,6 @@ export class ProviderRouter {
     this.health.set(provider, h);
   }
 
-  private async collectStream(gen: AsyncGenerator<StreamChunk>): Promise<StreamChunk> {
-    const result: StreamChunk = { text: '', images: [] };
-
-    for await (const chunk of gen) {
-      if (chunk.text) result.text = chunk.text;
-      if (chunk.images && chunk.images.length > 0) result.images = chunk.images;
-      if (chunk.sources && chunk.sources.length > 0) result.sources = chunk.sources;
-      if (chunk.video) result.video = chunk.video;
-      if (chunk.audio) result.audio = chunk.audio;
-      if (chunk.toolInvocations && chunk.toolInvocations.length > 0) {
-        result.toolInvocations = chunk.toolInvocations;
-      }
-    }
-
-    return result;
-  }
-
   /**
    * Collapse a streaming generator into a single StreamChunk for providers that
    * only implement streamChat. Services in this codebase yield CUMULATIVE text
