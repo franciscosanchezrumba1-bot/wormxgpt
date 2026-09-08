@@ -65,7 +65,7 @@ export abstract class OpenAICompatibleService {
           stream: false
         })
       });
-      return chatResponse.ok || chatResponse.status === 200 || chatResponse.status === 400;
+      return chatResponse.ok;
     } catch {
       return false;
     }

@@ -147,6 +147,23 @@ export class ProviderRouter {
     this.health.set(provider, h);
   }
 
+  private async collectStream(gen: AsyncGenerator<StreamChunk>): Promise<StreamChunk> {
+    const result: StreamChunk = { text: '', images: [] };
+
+    for await (const chunk of gen) {
+      if (chunk.text) result.text = chunk.text;
+      if (chunk.images && chunk.images.length > 0) result.images = chunk.images;
+      if (chunk.sources && chunk.sources.length > 0) result.sources = chunk.sources;
+      if (chunk.video) result.video = chunk.video;
+      if (chunk.audio) result.audio = chunk.audio;
+      if (chunk.toolInvocations && chunk.toolInvocations.length > 0) {
+        result.toolInvocations = chunk.toolInvocations;
+      }
+    }
+
+    return result;
+  }
+
   /**
    * Synchronous Request-Response with Fallback Handling
    */
@@ -215,16 +232,7 @@ export class ProviderRouter {
         if (typeof service.generateChat === 'function') {
           result = await service.generateChat(effectiveSettings, messages, signal);
         } else {
-          // Fallback if provider only implemented streamChat
-          let text = '';
-          let images: string[] = [];
-          let sources: any[] = [];
-          for await (const chunk of service.streamChat(effectiveSettings, messages, signal)) {
-            if (chunk.text) text = chunk.text;
-            if (chunk.images) images = chunk.images;
-            if (chunk.sources) sources = chunk.sources;
-          }
-          result = { text, images, sources };
+          result = await this.collectStream(service.streamChat(effectiveSettings, messages, signal));
         }
 
         if (result && (result.text || (result.images && result.images.length > 0))) {
