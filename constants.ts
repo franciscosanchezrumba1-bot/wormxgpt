@@ -700,11 +700,64 @@ export const MODEL_OPTIONS: ModelOption[] = [
   { label: 'LLM7 Mistral Small 2503 (Efficient)', value: 'mistral-small-2503', provider: 'llm7', isFree: true },
   { label: 'LLM7 Phi-4 Multimodal Instruct', value: 'phi-4-multimodal-instruct', provider: 'llm7', isFree: true },
 
-  // ── PUTER.COM (Account-based 400+ Models) ──────────────────────────────────
-  { label: 'Puter GPT-4o (OpenAI)', value: 'gpt-4o', provider: 'puter' },
-  { label: 'Puter GPT-4o Mini (OpenAI Fast)', value: 'gpt-4o-mini', provider: 'puter' },
-  { label: 'Puter Claude 3.5 Sonnet (Anthropic)', value: 'claude-3-5-sonnet', provider: 'puter' },
-  { label: 'Puter Gemini 2.5 Flash (Google)', value: 'gemini-2.5-flash', provider: 'puter' },
+  // ── PUTER.COM (100% Free & Keyless AI Gateway) ───────────────────────────
+  { label: 'Puter GPT-4o (OpenAI)', value: 'gpt-4o', provider: 'puter', isFree: true },
+  { label: 'Puter GPT-4o Mini (Fast)', value: 'gpt-4o-mini', provider: 'puter', isFree: true },
+  { label: 'Puter Claude 3.7 Sonnet (Hybrid Think)', value: 'claude-3-7-sonnet', provider: 'puter', isFree: true },
+  { label: 'Puter Claude 3.5 Sonnet (Coding)', value: 'claude-3-5-sonnet', provider: 'puter', isFree: true },
+  { label: 'Puter DeepSeek R1 (671B Reasoning)', value: 'deepseek-r1', provider: 'puter', isFree: true },
+  { label: 'Puter DeepSeek V3 (685B)', value: 'deepseek-v3', provider: 'puter', isFree: true },
+  { label: 'Puter Gemini 2.5 Flash', value: 'gemini-2.5-flash', provider: 'puter', isFree: true },
+  { label: 'Puter Gemini 2.0 Flash', value: 'gemini-2.0-flash', provider: 'puter', isFree: true },
+  { label: 'Puter Mistral Large', value: 'mistral-large-latest', provider: 'puter', isFree: true },
+  { label: 'Puter LLaMA 3.3 70B Instruct', value: 'meta-llama/llama-3.3-70b-instruct', provider: 'puter', isFree: true },
+  { label: 'Puter o3 Mini (Reasoning)', value: 'o3-mini', provider: 'puter', isFree: true },
+  { label: 'Puter Qwen 2.5 Coder 32B', value: 'qwen/qwen-2.5-coder-32b-instruct', provider: 'puter', isFree: true },
+  { label: 'Puter GPT-5.6 Sol (Flagship)', value: 'gpt-5.6-sol', provider: 'puter', isFree: true },
+  { label: 'Puter GPT-5.6 Terra (Workhorse)', value: 'gpt-5.6-terra', provider: 'puter', isFree: true },
+  { label: 'Puter GPT Image 2 (Visual Diffusion)', value: 'gpt-image-2', provider: 'puter', isFree: true },
+  { label: 'Puter GPT Image 1.5', value: 'gpt-image-1.5', provider: 'puter', isFree: true },
+
+  // ── GITHUB MODELS (Free via Azure Inference) ──────────────────────────────
+  { label: 'GitHub Models GPT-4o', value: 'gpt-4o', provider: 'github_models', isFree: true },
+  { label: 'GitHub Models GPT-4o Mini', value: 'gpt-4o-mini', provider: 'github_models', isFree: true },
+  { label: 'GitHub Models DeepSeek R1', value: 'DeepSeek-R1', provider: 'github_models', isFree: true },
+  { label: 'GitHub Models LLaMA 3.3 70B Instruct', value: 'Meta-Llama-3.3-70B-Instruct', provider: 'github_models', isFree: true },
+  { label: 'GitHub Models Mistral Large 2411', value: 'Mistral-large-2411', provider: 'github_models', isFree: true },
+  { label: 'GitHub Models Phi-4 (14B)', value: 'Phi-4', provider: 'github_models', isFree: true },
+  { label: 'GitHub Models Cohere Command R+', value: 'Cohere-command-r-plus-08-2024', provider: 'github_models', isFree: true },
+
+  // ── Z.AI / ZHIPU GLM ──────────────────────────────────────────────────────
+  { label: 'Zhipu GLM-5.2 (744B MoE Flagship)', value: 'glm-5.2', provider: 'z_ai' },
+  { label: 'Zhipu GLM-4 Plus', value: 'glm-4-plus', provider: 'z_ai' },
+  { label: 'Zhipu GLM-4 Flash (Ultra Fast)', value: 'glm-4-flash', provider: 'z_ai', isFree: true },
+  { label: 'Zhipu GLM-4 Air', value: 'glm-4-air', provider: 'z_ai' },
+  { label: 'Zhipu CodeGeex-4 (Code Specialist)', value: 'codegeex-4', provider: 'z_ai' },
+
+  // ── ALIBABA CLOUD DASHSCOPE (QWEN) ────────────────────────────────────────
+  { label: 'Alibaba Qwen Max', value: 'qwen-max', provider: 'alibaba' },
+  { label: 'Alibaba Qwen Plus', value: 'qwen-plus', provider: 'alibaba' },
+  { label: 'Alibaba Qwen Turbo', value: 'qwen-turbo', provider: 'alibaba' },
+  { label: 'Alibaba Qwen 2.5 72B Instruct', value: 'qwen2.5-72b-instruct', provider: 'alibaba' },
+  { label: 'Alibaba Qwen 2.5 Coder 32B', value: 'qwen2.5-coder-32b-instruct', provider: 'alibaba' },
+  { label: 'Alibaba QwQ 32B (Reasoning)', value: 'qwq-32b', provider: 'alibaba' },
+
+  // ── MINIMAX ───────────────────────────────────────────────────────────────
+  { label: 'MiniMax M2.7 (Flagship Multilingual)', value: 'minimax-m2.7', provider: 'minimax' },
+  { label: 'MiniMax M2.5', value: 'minimax-m2.5', provider: 'minimax' },
+  { label: 'MiniMax Text 01', value: 'minimax-text-01', provider: 'minimax' },
+  { label: 'MiniMax Abab 6.5s Chat', value: 'abab6.5s-chat', provider: 'minimax' },
+
+  // ── CHUTES.AI ─────────────────────────────────────────────────────────────
+  { label: 'Chutes DeepSeek R1 (671B)', value: 'deepseek-ai/DeepSeek-R1', provider: 'chutes' },
+  { label: 'Chutes DeepSeek V3 (685B)', value: 'deepseek-ai/DeepSeek-V3', provider: 'chutes' },
+  { label: 'Chutes LLaMA 3.3 70B Instruct', value: 'meta-llama/Llama-3.3-70B-Instruct', provider: 'chutes' },
+
+  // ── LEPTON AI ─────────────────────────────────────────────────────────────
+  { label: 'Lepton LLaMA 3.3 70B', value: 'llama-3.3-70b', provider: 'lepton' },
+  { label: 'Lepton DeepSeek R1', value: 'deepseek-r1', provider: 'lepton' },
+  { label: 'Lepton Qwen 2.5 72B', value: 'qwen2.5-72b', provider: 'lepton' },
+  { label: 'Lepton Codestral 22B', value: 'codestral-22b', provider: 'lepton' },
 ];
 
 export const AUDIO_MODELS = [

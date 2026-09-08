@@ -137,6 +137,7 @@ export class PuterService {
     return pollinationsService.generateChat(
       { ...settings, model: 'flux' }, 
       [{ role: 'user', content: `/image ${prompt}`, timestamp: Date.now() }], 
+      [{ id: '1', role: 'user', content: `/image ${prompt}`, timestamp: Date.now() }], 
       signal
     );
   }

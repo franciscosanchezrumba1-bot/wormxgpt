@@ -4,7 +4,7 @@ class NvidiaService extends OpenAICompatibleService {
   protected readonly providerName = 'NVIDIA';
   protected readonly baseUrl = 'https://integrate.api.nvidia.com/v1';
   protected readonly apiKeyField = 'nvidiaApiKey';
-  protected readonly defaultModel = 'meta/llama-3.1-405b-instruct';
+  protected readonly defaultModel = 'meta/llama-3.3-70b-instruct';
 
   constructor() {
     super();

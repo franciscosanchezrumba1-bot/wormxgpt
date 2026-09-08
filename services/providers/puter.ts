@@ -209,6 +209,54 @@ export const puterProvider: IModelProvider = {
       tags: ['free', 'vision'],
       isFree: true,
       description: 'Photorealistic image synthesis via Puter txt2img'
+    },
+    {
+      id: 'deepseek-v3',
+      label: 'Puter DeepSeek V3 (685B)',
+      contextWindow: 128000,
+      tags: ['free', 'code', 'fast'],
+      isFree: true,
+      description: 'High-speed flagship open architecture'
+    },
+    {
+      id: 'gemini-2.0-flash',
+      label: 'Puter Gemini 2.0 Flash',
+      contextWindow: 128000,
+      tags: ['free', 'fast', 'vision'],
+      isFree: true,
+      description: 'Instant multimodal generation'
+    },
+    {
+      id: 'mistral-large-latest',
+      label: 'Puter Mistral Large',
+      contextWindow: 128000,
+      tags: ['free', 'code', 'reasoning'],
+      isFree: true,
+      description: 'Mistral frontier intelligence model'
+    },
+    {
+      id: 'meta-llama/llama-3.3-70b-instruct',
+      label: 'Puter LLaMA 3.3 70B Instruct',
+      contextWindow: 128000,
+      tags: ['free', 'code', 'reasoning'],
+      isFree: true,
+      description: 'Meta flagship open weights model'
+    },
+    {
+      id: 'o3-mini',
+      label: 'Puter o3 Mini (Reasoning)',
+      contextWindow: 128000,
+      tags: ['free', 'reasoning', 'code'],
+      isFree: true,
+      description: 'High-speed STEM and coding reasoning'
+    },
+    {
+      id: 'qwen/qwen-2.5-coder-32b-instruct',
+      label: 'Puter Qwen 2.5 Coder 32B',
+      contextWindow: 64000,
+      tags: ['free', 'code'],
+      isFree: true,
+      description: 'Elite code generation and refactoring'
     }
   ],
   async testConnection(settings: AppSettings): Promise<ProviderConnectionResult> {

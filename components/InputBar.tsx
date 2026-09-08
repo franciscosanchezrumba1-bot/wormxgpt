@@ -68,14 +68,18 @@ export const InputBar: React.FC<{
     setIsCompressingPxpipe(true);
     try {
       const result = await pxpipeEngine.renderTextToImage(input, {
-        fontSize: 13,
-        lineHeight: 18,
+        fontSize: 11,
+        lineHeight: 15,
         theme: 'terminal-green',
-        maxWidth: 1000
+        maxWidth: 1024,
+        title: 'PROMPT_INPUT_COMPRESSION'
       });
-      setAttachments(prev => [...prev, result.dataUrl]);
+      const newImages = result.images && result.images.length > 0 ? result.images : [result.dataUrl];
+      setAttachments(prev => [...prev, ...newImages]);
       setPxpipeStats(result.stats);
-      setInput('[PXPIPE COMPRESSED CONTEXT ATTACHED - SAVED ' + result.stats.tokenSavingsPct + '% TOKENS] Analyze the attached dense context attachment.');
+      const frameCount = newImages.length;
+      const escapeNotice = result.preservedPlainText ? `\n${result.preservedPlainText}\n` : '';
+      setInput(`[PXPIPE ARBITRAGE ATTACHED // ${frameCount} FRAME${frameCount > 1 ? 'S' : ''} - SAVED ${result.stats.tokenSavingsPct}% TOKENS]${escapeNotice}Analyze the attached dense context and answer thoroughly.`);
     } catch (err) {
       console.error('pxpipe compression failed:', err);
     } finally {

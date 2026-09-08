@@ -2,9 +2,9 @@ import { OpenAICompatibleService } from './openaiCompatible';
 
 class HuggingFaceService extends OpenAICompatibleService {
   protected readonly providerName = 'Hugging Face';
-  protected readonly baseUrl = 'https://router.hugging-face.cn/v1';
+  protected readonly baseUrl = 'https://router.huggingface.co/hf-inference/v1';
   protected readonly apiKeyField = 'huggingfaceApiKey';
-  protected readonly defaultModel = 'meta-llama/Meta-Llama-3.1-70B-Instruct';
+  protected readonly defaultModel = 'meta-llama/Llama-3.3-70B-Instruct';
 
   constructor() {
     super();
