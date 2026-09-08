@@ -75,6 +75,10 @@ export class ProviderRouter {
   /** Check if a provider has a valid API key configured */
   hasApiKey(provider: ProviderType, settings: AppSettings): boolean {
     if (!this.requiresApiKey(provider)) return true;
+    if (provider === 'gemini') {
+      const k = settings.geminiApiKey || (typeof process !== 'undefined' && (process.env.GEMINI_API_KEY || process.env.API_KEY)) || (typeof localStorage !== 'undefined' && localStorage.getItem('geminiApiKey'));
+      return !!k;
+    }
     const field = this.getApiKeyField(provider);
     if (!field) return false;
     return !!(settings as any)[field];
@@ -90,6 +94,7 @@ export class ProviderRouter {
 
   /** Auto-select the best free model for a provider */
   getBestFreeModel(provider: ProviderType): string {
+    if (provider === 'gemini') return 'gemini-2.5-flash';
     return FREE_MODEL_DEFAULTS[provider] || '';
   }
 
@@ -191,6 +196,10 @@ export class ProviderRouter {
           }
         }
       }
+      // If Gemini has an available API key and is not already in chain, add it near front
+      if (this.hasApiKey('gemini', settings) && !chain.some(c => c.provider === 'gemini')) {
+        chain.splice(1, 0, { provider: 'gemini', model: 'gemini-2.5-flash' });
+      }
       // Ensure pollinations is always at least present in the chain if not already
       if (!chain.some(c => c.provider === 'pollinations')) {
         chain.push({ provider: 'pollinations', model: 'openai' });
@@ -226,16 +235,7 @@ export class ProviderRouter {
         if (typeof service.generateChat === 'function') {
           result = await service.generateChat(effectiveSettings, messages, signal);
         } else {
-          // Fallback if provider only implemented streamChat
-          let text = '';
-          let images: string[] = [];
-          let sources: any[] = [];
-          for await (const chunk of service.streamChat(effectiveSettings, messages, signal)) {
-            if (chunk.text) text = chunk.text;
-            if (chunk.images) images = chunk.images;
-            if (chunk.sources) sources = chunk.sources;
-          }
-          result = { text, images, sources };
+          result = await this.collectStream(service.streamChat(effectiveSettings, messages, signal));
         }
 
         if (result && (result.text || (result.images && result.images.length > 0))) {

@@ -16,8 +16,11 @@
   <link rel="preconnect" href="https://text.pollinations.ai" crossorigin>
   <link rel="preconnect" href="https://api.groq.com" crossorigin>
   <link rel="preconnect" href="https://generativelanguage.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://js.puter.com" crossorigin>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <title>WormGPT Terminal</title>
+  <!-- Puter.js SDK for Keyless & Free AI Access -->
+  <script src="https://js.puter.com/v2/"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
@@ -458,7 +461,27 @@
     .token.punctuation { color: #94a3b8; }
     .token.property, .token.tag, .token.constant { color: #fbbf24; }
     .token.selector, .token.attr-name { color: #a78bfa; }
-    .token.class-name { color: #38bdf8; }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .animate-blink {
+      animation: blink 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    ::selection {
+      background: rgba(99, 102, 241, 0.5) !important;
+      color: #ffffff !important;
+    }
+    ::-moz-selection {
+      background: rgba(99, 102, 241, 0.5) !important;
+      color: #ffffff !important;
+    }
+    .select-text, .markdown-content, .markdown-content * {
+      -webkit-user-select: text !important;
+      -moz-user-select: text !important;
+      -ms-user-select: text !important;
+      user-select: text !important;
+    }
   </style>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>

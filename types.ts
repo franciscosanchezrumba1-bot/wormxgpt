@@ -11,7 +11,41 @@ export type ProviderType =
   | 'lambdaai' | 'nebius' | 'tinyfish' | 'ai21' | 'uncloseai' | 'llm7' | 'puter'
   | 'llamacpp' | 'lmstudio' | 'jan' | 'vllm' | 'sglang' | 'localai' | 'gpt4all'
   | 'local_openai_proxy' | 'unsloth' | 'webgpu' | 'webbrain_cloud' | 'azure_openai' | 'aws_bedrock'
-  | 'minimax' | 'kimi' | 'alibaba' | 'z_ai' | 'zhipuai' | (string & {});
+  | 'minimax' | 'kimi' | 'alibaba' | 'z_ai' | 'zhipuai'
+  // New 2025/2026 providers
+  | 'groq_free' | 'openrouter_free' | 'huggingface_free' | 'puter_free'
+  | 'google_free' | 'mistral_free' | 'together_free' | 'cerebras_free'
+  | 'chutes' | 'neets' | 'avian' | 'lepton' | 'anyscale' | 'octoai'
+  | 'replicate_free' | 'modal' | 'banana' | 'beam' | 'baseten'
+  | 'writer' | 'cohere_free' | 'ai21_free' | 'inflection'
+  | 'github_models' | 'azure_free' | 'vertexai_free'
+  | 'lambda' | 'vast' | 'runpod' | 'salad' | 'coreweave'
+  | 'scaleway' | 'nscale' | 'fal' | 'gradient' | 'brev'
+  | (string & {});
+
+// ── Generation Metadata (Whitebox) ────────────────────────────────────────────
+export interface GeneratedBy {
+  model: string;
+  provider: ProviderType;
+  latencyMs?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  attemptedProviders?: string[];
+  fallbackReason?: string;
+  isFree?: boolean;
+  streamingEnabled?: boolean;
+}
+
+// ── Provider Routing Event (Whitebox) ─────────────────────────────────────────
+export interface RoutingEvent {
+  type: 'attempt' | 'success' | 'fallback' | 'failure';
+  provider: string;
+  model: string;
+  timestamp: number;
+  latencyMs?: number;
+  error?: string;
+  nextProvider?: string;
+}
 
 // ── Stream Response ──────────────────────────────────────────────────────────
 export interface StreamChunk {
@@ -21,6 +55,42 @@ export interface StreamChunk {
   audio?: string;
   sources?: { title: string; url: string }[];
   toolInvocations?: ToolInvocation[];
+  // Whitebox metadata
+  provider?: string;
+  model?: string;
+  latencyMs?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  attemptedProviders?: string[];
+  fallbackReason?: string;
+  isFree?: boolean;
+  routingEvents?: RoutingEvent[];
+  isStreaming?: boolean;
+  streamDone?: boolean;
+}
+
+// ── Live Stream Events ────────────────────────────────────────────────────────
+export type StreamEventType =
+  | 'token'          // new text token arrived
+  | 'tool_start'     // tool call beginning
+  | 'tool_end'       // tool call completed
+  | 'provider_attempt'  // trying a provider
+  | 'provider_fallback' // falling back to next provider
+  | 'provider_success'  // provider responded
+  | 'error'          // stream error
+  | 'done';          // stream complete
+
+export interface StreamEvent {
+  type: StreamEventType;
+  text?: string;
+  toolName?: string;
+  toolArgs?: any;
+  toolResult?: any;
+  provider?: string;
+  model?: string;
+  error?: string;
+  latencyMs?: number;
+  timestamp: number;
 }
 
 // ── Provider Health Stats ────────────────────────────────────────────────────
@@ -72,6 +142,7 @@ export interface AgentOrchestrationConfig {
 // ── Core Types ───────────────────────────────────────────────────────────────
 
 export interface Message {
+  id?: string;
   role: 'user' | 'model' | 'assistant' | 'tool';
   content: string;
   thinking?: string;
@@ -82,6 +153,14 @@ export interface Message {
   sources?: { title: string; url: string }[];
   toolInvocations?: ToolInvocation[];
   agentId?: string;
+  // Whitebox generation metadata
+  generatedBy?: GeneratedBy;
+  // Error state
+  isError?: boolean;
+  errorType?: 'network' | 'api_key' | 'rate_limit' | 'context_overflow' | 'model_unavailable' | 'unknown';
+  errorRaw?: string;
+  // Routing log
+  routingEvents?: RoutingEvent[];
 }
 
 export interface ToolInvocation {
@@ -90,6 +169,9 @@ export interface ToolInvocation {
   toolName: string;
   args: any;
   result?: any;
+  latencyMs?: number;
+  startedAt?: number;
+  completedAt?: number;
 }
 
 export interface ChatSession {
@@ -141,7 +223,7 @@ export interface AppSettings {
   cohereApiKey?: string;
   wisGateApiKey?: string;
   wisGateHost?: string;
-  // New providers
+  // Provider API Keys
   nvidiaApiKey?: string;
   fireworksApiKey?: string;
   sambanovaApiKey?: string;
@@ -163,6 +245,16 @@ export interface AppSettings {
   lambdaaiApiKey?: string;
   nebiusApiKey?: string;
   ai21ApiKey?: string;
+  // New 2025 Providers
+  chutesApiKey?: string;
+  githubModelsToken?: string;
+  writerApiKey?: string;
+  inflectionApiKey?: string;
+  scalewayApiKey?: string;
+  nscaleApiKey?: string;
+  falApiKey?: string;
+  lepton?: string;
+  // Search & Crawl Keys
   witAiServerToken?: string;
   tavilyApiKey?: string;
   braveApiKey?: string;
@@ -172,6 +264,7 @@ export interface AppSettings {
   serpapiApiKey?: string;
   firecrawlApiKey?: string;
   tinyfishApiKey?: string;
+  // Local Hosts
   llamacppHost?: string;
   lmstudioHost?: string;
   janHost?: string;
@@ -211,6 +304,7 @@ export interface AppSettings {
   autoFallback?: boolean;
   autoSelectFreeModel?: boolean;
   fallbackChain?: ProviderType[];
+  preferFreeModels?: boolean;
   // Multi-Agent Orchestration
   multiAgentEnabled?: boolean;
   multiAgentConfig?: AgentOrchestrationConfig;
@@ -241,7 +335,7 @@ export interface AppSettings {
   a2aAgentUrls?: string[];
   // Prompt Caching
   promptCachingEnabled?: boolean;
-  promptCacheTTL?: number; // seconds, default 3600
+  promptCacheTTL?: number;
   // Multi-Model Orchestration & Model Router
   visionModel?: string;
   visionProvider?: ProviderType;
@@ -252,8 +346,13 @@ export interface AppSettings {
   // UI Customization
   themePreference?: 'charcoal' | 'night' | 'slate';
   fontSize?: 'sm' | 'base' | 'lg';
-  // Vision Arbitrage / pxpipe Token Reduction
+  // Vision Arbitrage
   pxpipeEnabled?: boolean;
   pxpipeProxyUrl?: string;
+  // Whitebox settings
+  showGenerationMetadata?: boolean;
+  showRoutingEvents?: boolean;
+  showToolDetails?: boolean;
+  showStreamingCursor?: boolean;
   [key: string]: any;
 }

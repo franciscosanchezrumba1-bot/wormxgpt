@@ -4,7 +4,7 @@ class SambanovaService extends OpenAICompatibleService {
   protected readonly providerName = 'SambaNova';
   protected readonly baseUrl = 'https://api.sambanova.ai/v1';
   protected readonly apiKeyField = 'sambanovaApiKey';
-  protected readonly defaultModel = 'Meta-Llama-3.1-405B-Instruct';
+  protected readonly defaultModel = 'Meta-Llama-3.3-70B-Instruct';
 
   constructor() {
     super();

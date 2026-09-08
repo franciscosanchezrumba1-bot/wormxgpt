@@ -233,6 +233,23 @@ export async function decryptLocalPayload(encryptedStr: string, fingerprint: str
   }
 }
 
+function isLegacyPlaintextPayload(raw: string | null): boolean {
+  if (!raw) return false;
+  const trimmed = raw.trim();
+  return trimmed.startsWith('{') || trimmed.startsWith('[');
+}
+
+function clearLegacyPlaintextBackup(storageKey: string): void {
+  const existing = localStorage.getItem(storageKey);
+  if (isLegacyPlaintextPayload(existing)) {
+    localStorage.removeItem(storageKey);
+  }
+}
+
+function isSensitiveSettingKey(key: string): boolean {
+  return /(apiKey|accessKey|secretKey|anonKey|token|password)$/i.test(key) || /webhook/i.test(key);
+}
+
 /**
  * Save chat session history tied to device fingerprint
  */
@@ -253,7 +270,7 @@ export async function saveHistoryWithFingerprint(sessions: ChatSession[], finger
       localStorage.setItem(scopedKey, encrypted);
     } catch (encErr) {
       console.warn('[DeviceFP] Skipping encrypted history backup (encryption unavailable):', encErr);
-      localStorage.removeItem(scopedKey);
+      clearLegacyPlaintextBackup(scopedKey);
     }
 
     // 3. Store a redacted index (metadata only, no message content) under the
@@ -327,15 +344,15 @@ export async function saveSettingsWithFingerprint(settings: AppSettings, fingerp
       localStorage.setItem(scopedKey, encrypted);
     } catch (encErr) {
       console.warn('[DeviceFP] Skipping encrypted settings backup (encryption unavailable):', encErr);
-      localStorage.removeItem(scopedKey);
+      clearLegacyPlaintextBackup(scopedKey);
     }
 
     // 2. Standard SETTINGS_KEY is plaintext for synchronous boot, so persist only
-    //    the non-secret subset. Any *ApiKey* field is stripped and restored later
-    //    from the encrypted device-scoped copy.
+    //    the non-secret subset. Secret-bearing settings are stripped and restored
+    //    later from the encrypted device-scoped copy.
     const publicSettings: Record<string, any> = {};
     for (const [k, v] of Object.entries(settings)) {
-      if (/apikey/i.test(k)) continue;
+      if (isSensitiveSettingKey(k)) continue;
       publicSettings[k] = v;
     }
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(publicSettings));
